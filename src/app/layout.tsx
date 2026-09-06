@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Syne } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
+import Grain from "@/components/Grain";
+import Cursor from "@/components/Cursor";
+import ProgressBar from "@/components/ProgressBar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,18 +16,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const syne = Syne({
+  variable: "--font-syne",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+});
+
 export const metadata: Metadata = {
-  title: "Kishore — Personal Interface",
-  description: "Kishore's personal portfolio and digital workspace.",
+  title: "Kishore S — Builder",
+  description:
+    "Kishore S. ECSE, Chennai. Systems you can hold — and prove. Credify, self-hosted infrastructure, and hardware that tells the truth.",
 };
-
-const resetScrollScript = `
-  if ("scrollRestoration" in history) {
-    history.scrollRestoration = "manual";
-  }
-
-  window.scrollTo(0, 0);
-`;
 
 export default function RootLayout({
   children,
@@ -34,18 +36,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${syne.variable} h-full antialiased`}
     >
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: resetScrollScript,
-          }}
-        />
-      </head>
-
-      <body className="min-h-full flex flex-col">
+      <body className="cursor-none-desktop min-h-full bg-[#0C0B0A] text-[#F4EFE6]">
         <SmoothScroll />
+        <Grain />
+        <Cursor />
+        <ProgressBar />
         {children}
       </body>
     </html>
