@@ -2,27 +2,72 @@
 
 import { useEffect } from "react";
 import Lenis from "lenis";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { prefersReducedMotion } from "@/lib/motion";
+import { setLenis, scrollToId } from "@/lib/scroll";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function SmoothScroll() {
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      smoothWheel: true,
-      touchMultiplier: 1.5,
-    });
+    const reduced = prefersReducedMotion();
 
-    let animationFrameId: number;
+    const lenis = reduced
+      ? null
+      : new Lenis({
+          duration: 1.15,
+          smoothWheel: true,
+          touchMultiplier: 1.2,
+        });
 
-    const raf = (time: number) => {
-      lenis.raf(time);
-      animationFrameId = requestAnimationFrame(raf);
+    if (lenis) {
+      setLenis(lenis);
+      lenis.on("scroll", ScrollTrigger.update);
+      const ticker = (time: number) => {
+        lenis.raf(time * 1000);
+      };
+      gsap.ticker.add(ticker);
+      gsap.ticker.lagSmoothing(0);
+
+      const onResize = () => ScrollTrigger.refresh();
+      window.addEventListener("resize", onResize);
+
+      const onClick = (event: MouseEvent) => {
+        const target = (event.target as HTMLElement | null)?.closest(
+          "a[href^='#']",
+        ) as HTMLAnchorElement | null;
+        if (!target) return;
+        const id = target.getAttribute("href")?.slice(1);
+        if (!id) return;
+        event.preventDefault();
+        scrollToId(id);
+      };
+      document.addEventListener("click", onClick);
+
+      return () => {
+        window.removeEventListener("resize", onResize);
+        document.removeEventListener("click", onClick);
+        gsap.ticker.remove(ticker);
+        setLenis(null);
+        lenis.destroy();
+      };
+    }
+
+    const onClick = (event: MouseEvent) => {
+      const target = (event.target as HTMLElement | null)?.closest(
+        "a[href^='#']",
+      ) as HTMLAnchorElement | null;
+      if (!target) return;
+      const id = target.getAttribute("href")?.slice(1);
+      if (!id) return;
+      event.preventDefault();
+      scrollToId(id);
     };
-
-    animationFrameId = requestAnimationFrame(raf);
+    document.addEventListener("click", onClick);
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
-      lenis.destroy();
+      document.removeEventListener("click", onClick);
     };
   }, []);
 

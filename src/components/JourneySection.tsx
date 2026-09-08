@@ -187,6 +187,8 @@ export default function JourneySection() {
         );
       }
     };
+    // Unused legacy section retained in tree; hook deps are intentional.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const scrollToStage = (index: number) => {
